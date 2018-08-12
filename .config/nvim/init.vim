@@ -9,8 +9,11 @@ Plug 'junegunn/limelight.vim', { 'on': 'Goyo' }
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb' " needed for fugitive :Gbrowse
 Plug 'sheerun/vim-polyglot'
+Plug 'AndrewRadev/sideways.vim'
 Plug 'w0rp/ale'
+Plug 'simeji/winresizer' " <C-E> to start resize mode
 
+" Plug 'Valloric/YouCompleteMe', { 'for': ['javascript', 'ruby'], 'do': './install.py' }
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 
 Plug 'SirVer/ultisnips', { 'for': ['ruby'] }
@@ -19,9 +22,14 @@ Plug 'morhetz/gruvbox'
 Plug 'airblade/vim-gitgutter'
 Plug 'godlygeek/tabular', { 'for': ['markdown'] }
 Plug 'plasticboy/vim-markdown', { 'for': ['markdown'] }
-Plug 'vim-ruby/vim-ruby'
+
+Plug 'vim-ruby/vim-ruby', { 'for': ['ruby'] }
 Plug 'larrylv/vim-vroom', { 'for': ['ruby'] } " for compatability with pay test
-Plug 'majutsushi/tagbar'
+Plug 'majutsushi/tagbar', { 'for': ['ruby', 'go'] }
+
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+Plug 'sebdah/vim-delve', { 'for': ['go'] }
+
 
 Plug 'ryanoasis/vim-devicons' "Requires this font: http://nerdfonts.com/, keep at bottom
 
@@ -29,8 +37,23 @@ Plug 'ryanoasis/vim-devicons' "Requires this font: http://nerdfonts.com/, keep a
 
 call plug#end()
 
-""" => vim-fold-rspec
-let g:fold_rspec_foldlevel=999
+""" => vim-go
+let g:go_fmt_command = "goimports"
+let g:go_fmt_fail_silently = 1
+let g:go_gocode_autobuild = 0
+let g:go_highlight_extra_types = 1
+let g:go_highlight_fields = 1
+let g:go_highlight_functions = 1
+let g:go_highlight_generate_tags = 1
+let g:go_highlight_methods = 1
+let g:go_highlight_structs = 1
+let g:go_highlight_types = 1
+let g:go_list_type = "quickfix"
+""" => vim-delve
+autocmd FileType go nmap <leader>R :DlvTest<CR>
+autocmd FileType go nmap <leader>db :DlvToggleBreakpoint<CR>
+autocmd FileType go nmap <leader>dc :DlvClearAll<CR>
+
 """ => vim-gitgutter
 set updatetime=500
 """ => vim-rhubarb
@@ -53,6 +76,33 @@ let g:tagbar_type_ruby = {
     \ 'ctagsbin':  'ripper-tags',
     \ 'ctagsargs': '--fields=+n -f -'
 \ }
+let g:tagbar_type_go = {
+	\ 'ctagstype' : 'go',
+	\ 'kinds'     : [
+		\ 'p:package',
+		\ 'i:imports:1',
+		\ 'c:constants',
+		\ 'v:variables',
+		\ 't:types',
+		\ 'n:interfaces',
+		\ 'w:fields',
+		\ 'e:embedded',
+		\ 'm:methods',
+		\ 'r:constructor',
+		\ 'f:functions'
+	\ ],
+	\ 'sro' : '.',
+	\ 'kind2scope' : {
+		\ 't' : 'ctype',
+		\ 'n' : 'ntype'
+	\ },
+	\ 'scope2kind' : {
+		\ 'ctype' : 't',
+		\ 'ntype' : 'n'
+	\ },
+	\ 'ctagsbin'  : 'gotags',
+	\ 'ctagsargs' : '-sort -silent'
+\ }
 nnoremap <silent> <C-t> :TagbarToggle<CR>
 """ => vroom
 let g:vroom_use_terminal = 1
@@ -62,6 +112,11 @@ let g:vroom_test_unit_command = 'pay test '
 """ => vim-markdown
 let g:vim_markdown_folding_level = 2
 let g:vim_markdown_new_list_item_indent = 2
+
+""" => YouCompleteMe
+"let g:python_host_prog  = '/usr/local/bin/python' " requires python support
+" I can type short words myself
+"let g:ycm_min_num_identifier_candidate_chars = 3
 
 """ => deoplete
 let g:deoplete#enable_at_startup = 1
@@ -168,6 +223,13 @@ set noswapfile              " no swap file to recover
 let g:tex_flavor = "latex"  " default to LaTeX not plaintex
 " no line number in terminals
 autocmd TermOpen * setlocal nonumber
+
+"function! FoldRubyTests()
+"  setlocal foldmethod=indent
+"endfunction
+"
+"autocmd BufReadPre */test/*.rb call FoldRubyTests()
+
 
 """ => filetype specific settings
 autocmd FileType java setlocal ts=4 sw=4
