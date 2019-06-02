@@ -22,7 +22,7 @@ Plug 'roxma/vim-hug-neovim-rpc'
 
 call plug#end()
 
-""" vim-fugitive
+""" => vim-fugitive
 nnoremap <leader>gst :Gstatus<CR>
 nnoremap <leader>gc :Gcommit<CR>
 
@@ -36,7 +36,7 @@ nnoremap <leader>gc :Gcommit<CR>
 "         \ 'whitelist': ['c', 'cpp', 'objc', 'objcpp', 'cc'],
 "         \ })
 " endif
-" 
+"
 " if executable('pyls')
 "     au User lsp_setup call lsp#register_server({
 "         \ 'name': 'pyls',
@@ -119,6 +119,9 @@ set expandtab
 set shiftwidth=2
 set smarttab
 set tabstop=2
+
+""" => filetype specific settings
+autocmd FileType java setlocal ts=4 sw=4
 
 "" vim:fdm=expr:fdl=0
 "" vim:fde=getline(v\:lnum)=~'^""'?'>'.(matchend(getline(v\:lnum),'""*')-2)\:'='
