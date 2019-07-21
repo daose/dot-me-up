@@ -1,0 +1,15 @@
+alias gst="git status"
+alias gco="git checkout"
+alias gd="git diff"
+alias ggpull="git pull"
+alias ggpush="git push"
+alias glg="git log"
+alias gds="git diff --staged"
+alias ggpushf="git push -f"
+alias gb="git branch"
+
+alias ls="ls --color -a"
+alias rm="rm -v"
+
+alias bashrc="$EDITOR ~/.bashrc"
+alias rcsync="source ~/.bashrc"
