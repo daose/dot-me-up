@@ -23,10 +23,10 @@ endfunction
 " Use <c-space> to trigger completion.
 inoremap <silent><expr> <c-space> coc#refresh()
 nnoremap <silent> <leader><space> :call CocAction('doHover')<CR>
+nnoremap <silent> <C-t> :CocList outline<CR>
+nnoremap <silent> <leader>n :CocList symbols<CR>
 " Remap keys for gotos
 nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 
 " see diagnostic errors
@@ -61,9 +61,9 @@ let g:tex_flavor = "latex"  " default to LaTeX not plaintex
 
 """ => ale
 Plug 'w0rp/ale'
-let g:ale_fixers = {'rust': ['rustfmt']}
+let g:ale_fixers = {'rust': ['rustfmt'], 'php': ['php_cs_fixer']}
+let g:ale_linters = {'php': []}
 nnoremap <silent> <leader>r :ALEFix<CR>
-let g:ale_fixers = {'php': ['php_cs_fixer']}
 " let g:airline#extensions#ale#enabled = 1 " integrate with airline
 " " nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 " " nmap <silent> <C-j> <Plug>(ale_next_wrap)
@@ -81,6 +81,11 @@ let g:ale_fixers = {'php': ['php_cs_fixer']}
 " let g:ale_cpp_clang_options = '-std=c++17 -Wall'
 
 Plug 'tpope/vim-fugitive'
+set statusline=%<%f\ %h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)\ %P
+
+Plug 'tpope/vim-rhubarb' " needed for fugitive :Gbrowse
+" let g:github_enterprise_urls = ['https://git.corp.stripe.com']
+
 Plug 'simeji/winresizer' " <C-E> to start resize mode
 
 """ => nerdtree
@@ -98,10 +103,6 @@ Plug 'simeji/winresizer' " <C-E> to start resize mode
 " let g:airline#extensions#tagbar#enabled = 0
 " let g:airline#extensions#hunks#enabled = 0
 
-
-""" => vim-rhubarb
-" Plug 'tpope/vim-rhubarb' " needed for fugitive :Gbrowse
-" let g:github_enterprise_urls = ['https://git.corp.stripe.com']
 
 """ => polyglot
 " Plug 'sheerun/vim-polyglot'
@@ -228,18 +229,12 @@ Plug 'simeji/winresizer' " <C-E> to start resize mode
 
 call plug#end()
 
-""" => rust
-function! CargoRun()
-  let height = winheight(0) * 1/4
-  exec ":belowright " . height . "split term://cargo\ run"
-  exec ":startinsert"
-endfunction
-
 """ => custom colorscheme
 set background=dark
 highlight VertSplit ctermbg=Gray ctermfg=Black
 highlight LineNr ctermfg=DarkGray
 highlight CursorLine cterm=NONE ctermbg=DarkGray
+highlight ColorColumn ctermbg=DarkGray
 
 highlight TabLineFill cterm=None
 highlight TabLine ctermbg=Black ctermfg=DarkGray
@@ -258,6 +253,7 @@ highlight PmenuSbar ctermbg=DarkGray
 let g:netrw_liststyle = 3 " tree like view
 nnoremap <silent> <C-n> :Explore<CR>
 let g:netrw_banner = 0 " get rid of banner
+autocmd FileTYpe netrw nnoremap <BS> :Rexplore<CR>
 
 """ => nvim mappings
 " Navigate tabs
@@ -270,6 +266,8 @@ nnoremap <leader>dt :%s/\s\+$//e <bar> :noh <bar> :w<CR>
 nnoremap <leader>t :tabnew<CR>
 nnoremap <leader>b :Buffers<CR>
 nnoremap <leader>q :q<CR>
+nnoremap <leader>w :w<CR>
+nnoremap <leader>x :x<CR>
 " clear highlight when starting a new one
 nnoremap / :noh<CR>/
 " copy filename into clipboard
@@ -297,10 +295,9 @@ autocmd TermOpen * setlocal nonumber
 
 """ => filetype specific settings
 autocmd FileType java setlocal ts=4 sw=4
-autocmd FileType cpp setlocal ts=4 sw=4
 autocmd FileType sh setlocal ts=4 sw=4
 autocmd FileType php setlocal ts=4 sw=4
-autocmd FileType rust nnoremap <leader>R :call CargoRun()<CR>
+autocmd FileType rust setlocal cc=80
 
 "" vim:fdm=expr:fdl=0
 "" vim:fde=getline(v\:lnum)=~'^""'?'>'.(matchend(getline(v\:lnum),'""*')-2)\:'='
