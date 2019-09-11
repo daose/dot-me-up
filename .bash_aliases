@@ -7,9 +7,10 @@ alias glg="git log"
 alias gds="git diff --staged"
 alias ggpushf="git push -f"
 alias gb="git branch"
+alias gnew="git checkout -b"
+alias gcm="git commit -m"
 
 alias ls="ls --color -a"
-alias rm="rm -v"
 
 alias bashrc="$EDITOR ~/.bashrc"
 alias rcsync="source ~/.bashrc"
