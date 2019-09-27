@@ -3,11 +3,41 @@ call plug#begin('~/.local/share/nvim/plugged')
 " curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs \
 "     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
+""" => tagbar alternative
+" https://github.com/liuchengxu/vista.vim
+
 """ => javascript
 Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
 
 """ => coc
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
+""" => fzf
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
+
+Plug 'airblade/vim-gitgutter'
+Plug 'tpope/vim-fugitive'
+
+Plug 'lervag/vimtex', { 'for': ['tex'] }
+Plug 'w0rp/ale'
+
+Plug 'tpope/vim-rhubarb' " needed for fugitive :Gbrowse
+
+Plug 'simeji/winresizer' " <C-E> to start resize mode
+
+" Plug 'scrooloose/nerdtree'
+" Plug 'vim-airline/vim-airline'
+" Plug 'sheerun/vim-polyglot'
+" Plug 'AndrewRadev/sideways.vim'
+" Plug 'tpope/vim-surround'
+" Plug 'vim-ruby/vim-ruby', { 'for': ['ruby'] }
+" Plug 'larrylv/vim-vroom', { 'for': ['ruby'] } " for compatability with pay test
+" Plug 'majutsushi/tagbar', { 'for': ['ruby', 'go'] }
+" Plug 'ryanoasis/vim-devicons' "Requires this font: http://nerdfonts.com/, keep at bottom
+call plug#end()
+
+""" => coc
 set hidden
 set nowritebackup
 set shortmess+=c
@@ -34,8 +64,6 @@ nmap <silent> [e <Plug>(coc-diagnostic-prev)
 nmap <silent> ]e <Plug>(coc-diagnostic-next)
 
 """ => fzf
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'junegunn/fzf.vim'
 nnoremap <C-p> :Files<CR>
 " nnoremap <silent> gd :call fzf#vim#tags(expand('<cword>'))<CR>
 let s:horiz_preview_layout = 'right:50%'
@@ -50,46 +78,24 @@ command! -bang -nargs=* Rg
 nnoremap <leader>f :Rg<space>
 nnoremap <silent> <leader>s :Rg <C-r><C-w><CR>
 
-""" => vim-gitgutter
-Plug 'airblade/vim-gitgutter'
+""" => vim-fugitive
+set statusline=%<%f\ %h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)\ %P
 nnoremap <silent> <leader>gst :Gstatus<CR>
 nnoremap <silent> <leader>gc :Gcommit<CR>
 
 """ => vimtex
-Plug 'lervag/vimtex', { 'for': ['tex'] }
 let g:tex_flavor = "latex"  " default to LaTeX not plaintex
 
 """ => ale
-Plug 'w0rp/ale'
-let g:ale_fixers = {'rust': ['rustfmt'], 'php': ['php_cs_fixer']}
-let g:ale_linters = {'php': []}
+let g:ale_fixers = {'rust': [], 'php': ['php_cs_fixer']}
+let g:ale_linters = {'php': [], 'rust': []}
 nnoremap <silent> <leader>r :ALEFix<CR>
-" let g:airline#extensions#ale#enabled = 1 " integrate with airline
-" " nmap <silent> <C-k> <Plug>(ale_previous_wrap)
-" " nmap <silent> <C-j> <Plug>(ale_next_wrap)
-" " ale javascript
-" let g:ale_javascript_eslint_executable = 'eslint_d'
-" " use eslint_d instead of project eslint
-" let g:ale_javascript_eslint_use_global = 1
-" let g:ale_linters = {'java': []}
-" let g:ale_fix_on_save = 1
-" " lint only when I save
-" let g:ale_lint_on_text_changed = 'never'
-" let g:ale_lint_on_enter = 0
-" " Use c++17 for cs343
-" let g:ale_cpp_gcc_options = '-std=c++17 -Wall'
-" let g:ale_cpp_clang_options = '-std=c++17 -Wall'
 
-Plug 'tpope/vim-fugitive'
-set statusline=%<%f\ %h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)\ %P
-
-Plug 'tpope/vim-rhubarb' " needed for fugitive :Gbrowse
+""" => vim-rhubarb
 " let g:github_enterprise_urls = ['https://git.corp.stripe.com']
 
-Plug 'simeji/winresizer' " <C-E> to start resize mode
 
 """ => nerdtree
-" Plug 'scrooloose/nerdtree'
 " nnoremap <silent> <C-n> :NERDTreeToggle<CR>
 " nnoremap <silent> <leader>m :NERDTree %<CR>
 " quit vim if nerdtree is the only thing left
@@ -103,12 +109,8 @@ Plug 'simeji/winresizer' " <C-E> to start resize mode
 " let g:airline#extensions#tagbar#enabled = 0
 " let g:airline#extensions#hunks#enabled = 0
 
-
 """ => polyglot
-" Plug 'sheerun/vim-polyglot'
 " let g:polyglot_disabled = ['latex']
-
-" Plug 'AndrewRadev/sideways.vim'
 
 """ => vim-easy-align
 " Plug 'junegunn/vim-easy-align' " visual select, ga<delim>
@@ -118,51 +120,12 @@ Plug 'simeji/winresizer' " <C-E> to start resize mode
 " Start interactive EasyAlign for a motion/text object (e.g. gaip)
 " nmap ga <Plug>(EasyAlign)
 
-""" => deoplete
-" Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-" let g:deoplete#enable_at_startup = 1
-" let g:loaded_python_provider = 0
-" let g:python3_host_prog = '/usr/local/bin/python3'
-" <TAB>: completion.
-" inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
-" only show maximum 10
-" call deoplete#custom#option('max_list', 10)
-
-""" => neosnippet
-" Plug 'Shougo/neosnippet.vim'
-" Plug 'Shougo/neosnippet-snippets'
-" Plugin key-mappings.
-" Note: It must be "imap" and "smap".  It uses <Plug> mappings.
-" imap <C-j>     <Plug>(neosnippet_expand_or_jump)
-" smap <C-j>     <Plug>(neosnippet_expand_or_jump)
-" xmap <C-j>     <Plug>(neosnippet_expand_target)
-
-" SuperTab like snippets behavior.
-" Note: It must be "imap" and "smap".  It uses <Plug> mappings.
-"imap <expr><TAB>
-" \ pumvisible() ? "\<C-n>" :
-" \ neosnippet#expandable_or_jumpable() ?
-" \    "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
-" smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
-" \ "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
-
-" Snippet location
-" let g:neosnippet#snippets_directory=[$HOME.'/.config/nvim/neosnippet']
-
-" Plug 'tpope/vim-surround'
-" Plug 'godlygeek/tabular', { 'for': ['markdown'] }
-
-" Plug 'vim-ruby/vim-ruby', { 'for': ['ruby'] }
-
-" Plug 'larrylv/vim-vroom', { 'for': ['ruby'] } " for compatability with pay test
 """ => vroom
 " let g:vroom_use_terminal = 1
 " let g:vroom_use_bundle_exec = 0
 " let g:vroom_test_unit_command = 'pay test '
 
-
 """ => tagbar
-" Plug 'majutsushi/tagbar', { 'for': ['ruby', 'go'] }
 " Configure Tagbar to use ripper-tags with ruby
 " let g:tagbar_type_ruby = {
 "     \ 'kinds' : [
@@ -205,29 +168,6 @@ Plug 'simeji/winresizer' " <C-E> to start resize mode
 " \ }
 " nnoremap <silent> <C-t> :TagbarToggle<CR>
 
-""" => vim-go
-" Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
-" let g:go_fmt_command = "goimports"
-" let g:go_fmt_fail_silently = 1
-" let g:go_gocode_autobuild = 0
-" let g:go_highlight_extra_types = 1
-" let g:go_highlight_fields = 1
-" let g:go_highlight_functions = 1
-" let g:go_highlight_generate_tags = 1
-" let g:go_highlight_methods = 1
-" let g:go_highlight_structs = 1
-" let g:go_highlight_types = 1
-" let g:go_list_type = "quickfix"
-
-""" => vim-delve
-" Plug 'sebdah/vim-delve', { 'for': ['go'] }
-" autocmd FileType go nmap <leader>R :DlvTest<CR>
-" autocmd FileType go nmap <leader>db :DlvToggleBreakpoint<CR>
-" autocmd FileType go nmap <leader>dc :DlvClearAll<CR>
-
-" Plug 'ryanoasis/vim-devicons' "Requires this font: http://nerdfonts.com/, keep at bottom
-
-call plug#end()
 
 """ => custom colorscheme
 set background=dark
