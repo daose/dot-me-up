@@ -1,0 +1,3 @@
+[submodule "windows-desktop-switcher"]
+	path = windows-desktop-switcher
+	url = git@github.com:pmb6tz/windows-desktop-switcher.git
