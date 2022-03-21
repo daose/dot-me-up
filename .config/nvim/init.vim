@@ -1,199 +1,95 @@
-call plug#begin('~/.local/share/nvim/plugged')
-" Run script below to install junegunn/vim-plug
-" curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs \
-"     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-
-""" => tagbar alternative
-" https://github.com/liuchengxu/vista.vim
-
-""" => javascript
-Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
-
-""" => coc
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-
-""" => fzf
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'junegunn/fzf.vim'
-
-Plug 'airblade/vim-gitgutter'
-Plug 'tpope/vim-fugitive'
-
-Plug 'lervag/vimtex', { 'for': ['tex'] }
-Plug 'w0rp/ale'
-
-Plug 'tpope/vim-rhubarb' " needed for fugitive :Gbrowse
-
-Plug 'simeji/winresizer' " <C-E> to start resize mode
-
-" Plug 'scrooloose/nerdtree'
-" Plug 'vim-airline/vim-airline'
-" Plug 'sheerun/vim-polyglot'
-" Plug 'AndrewRadev/sideways.vim'
-" Plug 'tpope/vim-surround'
-" Plug 'vim-ruby/vim-ruby', { 'for': ['ruby'] }
-" Plug 'larrylv/vim-vroom', { 'for': ['ruby'] } " for compatability with pay test
-" Plug 'majutsushi/tagbar', { 'for': ['ruby', 'go'] }
-" Plug 'ryanoasis/vim-devicons' "Requires this font: http://nerdfonts.com/, keep at bottom
-call plug#end()
-
-""" => coc
-set hidden
-set nowritebackup
-set shortmess+=c
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
-" Use <c-space> to trigger completion.
-inoremap <silent><expr> <c-space> coc#refresh()
-nnoremap <silent> <leader><space> :call CocAction('doHover')<CR>
-nnoremap <silent> <C-t> :CocList outline<CR>
-nnoremap <silent> <leader>n :CocList symbols<CR>
-" Remap keys for gotos
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gr <Plug>(coc-references)
-
-" see diagnostic errors
-nmap <silent> [e <Plug>(coc-diagnostic-prev)
-nmap <silent> ]e <Plug>(coc-diagnostic-next)
-
 """ => fzf
 nnoremap <C-p> :Files<CR>
-" nnoremap <silent> gd :call fzf#vim#tags(expand('<cword>'))<CR>
-let s:horiz_preview_layout = 'right:50%'
-let s:ag_opts = {"options": ["-d:"]}
-command! -bang -nargs=* Rg
-  \ call fzf#vim#grep(
-  \   'rg --smart-case --column --line-number --no-heading --color=always '.shellescape(<q-args>), 1,
-  \   <bang>0 ? fzf#vim#with_preview(s:ag_opts, 'down:50%')
-  \           : fzf#vim#with_preview(s:ag_opts, s:horiz_preview_layout, '?'),
-  \   <bang>0)
-
 nnoremap <leader>f :Rg<space>
+nnoremap <leader>b :Buffers<CR>
 nnoremap <silent> <leader>s :Rg <C-r><C-w><CR>
+
+""" => custom colorscheme
+set termguicolors
+set background=dark
+colorscheme gruvbox
+
+""" => coq
+let g:coq_settings = {
+      \ 'auto_start': v:true,
+      \ 'keymap.recommended': v:false,
+      \ 'display.pum.fast_close': v:false,
+      \ 'keymap.manual_complete': v:null,
+      \ 'keymap.jump_to_mark': '<C-j>',
+      \ }
+" recommended keymaps, except for <Esc>
+" When selected, <Esc> will confirm + visual mode
+ino <silent><expr> <Esc>   pumvisible() ? (complete_info().selected != -1 ? "\<C-y><Esc>" : "\<C-e><Esc>") : "\<Esc>"
+ino <silent><expr> <C-c>   pumvisible() ? "\<C-e><C-c>" : "\<C-c>"
+ino <silent><expr> <BS>    pumvisible() ? "\<C-e><BS>"  : "\<BS>"
+ino <silent><expr> <CR>    pumvisible() ? (complete_info().selected == -1 ? "\<C-e><CR>" : "\<C-y>") : "\<CR>"
+ino <silent><expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+ino <silent><expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<BS>"
+
+""" => floaterm
+let g:floaterm_width=0.9
+let g:floaterm_height=0.9
+nnoremap <silent> ` :FloatermToggle<CR>
+tnoremap <silent> ` <C-\><C-n>:FloatermToggle<CR>
+
+""" => lua init
+lua << EOF
+require('gitsigns').setup {
+  signs = {
+    -- use "+" otherwise only colour is different between add and modify
+    add = {hl = 'GitSignsAdd', text = '+', numhl='GitSignsAddNr', linehl='GitSignsAddLn'},
+  }
+}
+
+require('nvim-treesitter.configs').setup {
+  highlight = {
+    enable = true
+  }
+}
+
+-- LSP setup with coq
+local coq = require "coq"
+local opts = { noremap=true, silent=true }
+vim.api.nvim_set_keymap('n', '[e', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
+vim.api.nvim_set_keymap('n', ']e', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
+vim.diagnostic.config({
+  virtual_text = false -- disable inline diagnostic, use ]e to navigate + show in popup window
+})
+local on_attach = function(client, bufnr)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader><space>', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>l', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<C-space>', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<C-t>', '<cmd>lua vim.lsp.buf.document_symbol()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+end
+local servers = { 'rust_analyzer' }
+for _, lsp in pairs(servers) do
+  require('lspconfig')[lsp].setup(coq.lsp_ensure_capabilities({
+    on_attach = on_attach,
+    settings = {
+      ["rust-analyzer"] = {
+        checkOnSave = {
+          command = "clippy"
+        }
+      }
+    }
+  }))
+end
+EOF
+
+""" => gitsigns
+nnoremap <leader>hp :Gitsigns preview_hunk<CR>
+nnoremap <leader>hs :Gitsigns stage_hunk<CR>
+nnoremap <leader>hu :Gitsigns reset_hunk<CR>
+nnoremap ]c :Gitsigns next_hunk<CR>
+nnoremap [c :Gitsigns prev_hunk<CR>
 
 """ => vim-fugitive
 set statusline=%<%f\ %h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)\ %P
-nnoremap <silent> <leader>gst :Gstatus<CR>
-nnoremap <silent> <leader>gc :Gcommit<CR>
-
-""" => vimtex
-let g:tex_flavor = "latex"  " default to LaTeX not plaintex
-
-""" => ale
-let g:ale_fixers = {'rust': [], 'php': ['php_cs_fixer']}
-let g:ale_linters = {'php': [], 'rust': []}
-nnoremap <silent> <leader>r :ALEFix<CR>
-
-""" => vim-rhubarb
-" let g:github_enterprise_urls = ['https://git.corp.stripe.com']
-
-
-""" => nerdtree
-" nnoremap <silent> <C-n> :NERDTreeToggle<CR>
-" nnoremap <silent> <leader>m :NERDTree %<CR>
-" quit vim if nerdtree is the only thing left
-" autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-
-""" => airline
-" Plug 'vim-airline/vim-airline'
-" requires terminal to load patched fonts: https://github.com/powerline/fonts
-" let g:airline_powerline_fonts = 1
-" performance reasons
-" let g:airline#extensions#tagbar#enabled = 0
-" let g:airline#extensions#hunks#enabled = 0
-
-""" => polyglot
-" let g:polyglot_disabled = ['latex']
-
-""" => vim-easy-align
-" Plug 'junegunn/vim-easy-align' " visual select, ga<delim>
-" Start interactive EasyAlign in visual mode (e.g. vipga)
-" xmap ga <Plug>(EasyAlign)
-
-" Start interactive EasyAlign for a motion/text object (e.g. gaip)
-" nmap ga <Plug>(EasyAlign)
-
-""" => vroom
-" let g:vroom_use_terminal = 1
-" let g:vroom_use_bundle_exec = 0
-" let g:vroom_test_unit_command = 'pay test '
-
-""" => tagbar
-" Configure Tagbar to use ripper-tags with ruby
-" let g:tagbar_type_ruby = {
-"     \ 'kinds' : [
-"         \ 'm:modules',
-"         \ 'c:classes',
-"         \ 'f:methods',
-"         \ 'F:singleton methods',
-"         \ 'C:constants',
-"         \ 'a:aliases'
-"     \ ],
-"     \ 'ctagsbin':  'ripper-tags',
-"     \ 'ctagsargs': '--fields=+n -f -'
-" \ }
-" let g:tagbar_type_go = {
-" 	\ 'ctagstype' : 'go',
-" 	\ 'kinds'     : [
-" 		\ 'p:package',
-" 		\ 'i:imports:1',
-" 		\ 'c:constants',
-" 		\ 'v:variables',
-" 		\ 't:types',
-" 		\ 'n:interfaces',
-" 		\ 'w:fields',
-" 		\ 'e:embedded',
-" 		\ 'm:methods',
-" 		\ 'r:constructor',
-" 		\ 'f:functions'
-" 	\ ],
-" 	\ 'sro' : '.',
-" 	\ 'kind2scope' : {
-" 		\ 't' : 'ctype',
-" 		\ 'n' : 'ntype'
-" 	\ },
-" 	\ 'scope2kind' : {
-" 		\ 'ctype' : 't',
-" 		\ 'ntype' : 'n'
-" 	\ },
-" 	\ 'ctagsbin'  : 'gotags',
-" 	\ 'ctagsargs' : '-sort -silent'
-" \ }
-" nnoremap <silent> <C-t> :TagbarToggle<CR>
-
-
-""" => custom colorscheme
-set background=dark
-highlight VertSplit ctermbg=Gray ctermfg=Black
-highlight LineNr ctermfg=DarkGray
-highlight CursorLine cterm=NONE ctermbg=DarkGray
-highlight ColorColumn ctermbg=DarkGray
-
-highlight TabLineFill cterm=None
-highlight TabLine ctermbg=Black ctermfg=DarkGray
-highlight TabLineSel ctermbg=Black
-highlight Title ctermbg=Black ctermfg=None
-
-highlight StatusLine cterm=NONE ctermbg=NONE ctermfg=LightGray
-highlight StatusLineNC cterm=NONE ctermbg=NONE ctermfg=DarkGray
-
-highlight Pmenu ctermbg=None ctermfg=LightGray
-highlight PmenuSel ctermbg=DarkGray ctermfg=White
-highlight PmenuThumb ctermbg=White
-highlight PmenuSbar ctermbg=DarkGray
-
-""" => netrw mappings
-let g:netrw_liststyle = 3 " tree like view
-nnoremap <silent> <C-n> :Explore<CR>
-let g:netrw_banner = 0 " get rid of banner
-autocmd FileTYpe netrw nnoremap <BS> :Rexplore<CR>
+nnoremap <leader>ga :Git add %<CR>
+nnoremap <leader>gd :Git difftool<CR>
 
 """ => nvim mappings
 " Navigate tabs
@@ -204,16 +100,22 @@ map 0 ^
 " remove trailing spaces, turn off highlighting from search, then save
 nnoremap <leader>dt :%s/\s\+$//e <bar> :noh <bar> :w<CR>
 nnoremap <leader>t :tabnew<CR>
-nnoremap <leader>b :Buffers<CR>
 nnoremap <leader>q :q<CR>
 nnoremap <leader>w :w<CR>
 nnoremap <leader>x :x<CR>
+nnoremap <leader>cn :cnext<CR>
+nnoremap <leader>cp :cprev<CR>
+" open netrw in current file directory
+nnoremap <leader>m :E<CR>
 " clear highlight when starting a new one
 nnoremap / :noh<CR>/
 " copy filename into clipboard
 nnoremap <silent> <leader>yf :let @+=expand("%")<CR>
 " copy file into clipboard
 nnoremap <silent> <leader>yc :%y+<CR>
+nnoremap <silent> <leader>R :tabnew term://RUST_LOG=debug\ cargo\ test<CR>
+" exit terminal with escape
+tnoremap <silent> <Esc> <C-\><C-n>:FloatermToggle<CR>
 
 """ => nvim settings
 set clipboard+=unnamedplus  " Copy and paste outside
@@ -232,12 +134,16 @@ set nomodeline
 
 " no line number in terminals
 autocmd TermOpen * setlocal nonumber
+" auto drop into insert mode
+autocmd TermOpen * startinsert
 
 """ => filetype specific settings
 autocmd FileType java setlocal ts=4 sw=4
 autocmd FileType sh setlocal ts=4 sw=4
 autocmd FileType php setlocal ts=4 sw=4
-autocmd FileType rust setlocal cc=80
+autocmd FileType kotlin setlocal ts=4 sw=4
+autocmd FileType rust setlocal cc=99
+autocmd FileType javascript setlocal cc=80
 
-"" vim:fdm=expr:fdl=0
-"" vim:fde=getline(v\:lnum)=~'^""'?'>'.(matchend(getline(v\:lnum),'""*')-2)\:'='
+command! JSONFormat %!python -m json.tool %
+" command! MD2HTML !npx showdown makehtml -i % -o %:r.html && open %:r.html
