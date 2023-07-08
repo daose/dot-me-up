@@ -2,14 +2,15 @@
 git_packages="
 junegunn/fzf
 junegunn/fzf.vim
+airblade/vim-gitgutter
+tpope/vim-fugitive
 "
 
 mkdir -p ~/.vim/pack/myvim/start
-cd ~/.vim/pack/myvim/start
 
 for package in $git_packages
 do
-    git clone https://github.com/$package
+    git clone https://github.com/$package ~/.vim/pack/myvim/start
 done
 
-vim -s update_helptags.vim
+vim -s $(dirname "$0")/update_helptags.vim

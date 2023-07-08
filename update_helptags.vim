@@ -1,1 +1,2 @@
 :helptags ALL
+:q
