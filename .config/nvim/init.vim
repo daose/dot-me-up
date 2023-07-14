@@ -3,11 +3,11 @@ nnoremap <C-p> :Files<CR>
 nnoremap <leader>f :Rg<space>
 nnoremap <leader>b :Buffers<CR>
 nnoremap <silent> <leader>s :Rg <C-r><C-w><CR>
+let g:fzf_preview_window = ['up,75%', 'ctrl-/']
+let g:fzf_layout = { 'window': { 'width': 1.0, 'height': 1.0 } }
 
 """ => custom colorscheme
 set termguicolors
-set background=dark
-colorscheme gruvbox
 
 """ => coq
 let g:coq_settings = {
