@@ -1,0 +1,42 @@
+# Remember the last 10k commands
+HISTSIZE=10000
+
+export PS1='\D{%H:%M:%S}┃\[\033[01;33m\]\w\[\033[01;32m\]\$ \[\033[00m\]'
+
+alias ls="ls -G -a --color"
+alias g="git status -uno"
+alias guno="git status -uno"
+alias gst="git status"
+alias gco="git checkout"
+alias gd="git diff"
+alias ggpull="git pull"
+alias ggpush="git push"
+alias glg="git log --oneline --decorate"
+alias gds="git diff --staged"
+alias ggpushf="git push --force-with-lease"
+alias gb="git branch --sort=committerdate"
+alias gai="git status -uno --porcelain | awk '{ print \$2 }' | fzf -m --preview 'git diff --color HEAD {}' --preview-window=up --cycle | xargs --verbose git add"
+alias grs="git status -uno --porcelain | awk '{ print \$2 }' | fzf -m --preview 'git diff --color HEAD {}' --preview-window=up --cycle | xargs --verbose git restore --staged"
+alias ggnew="git checkout master-passing-tests && git pull && git checkout -b"
+alias gcm="git commit -m"
+alias glgp="git log -p"
+alias gfixup="git commit --amend --no-edit"
+alias remaster="git fetch origin master-passing-tests && git rebase origin/master-passing-tests"
+alias repush="remaster && ggpushf"
+alias grc="git rebase --continue"
+alias gfpush="gfixup && ggpushf"
+alias gri="git rebase -i"
+function gob { git fetch origin +$1:$1 && git checkout $1; }
+function gnew { git checkout -b $1 origin/master-passing-tests; }
+
+alias rm="rm -v"
+
+alias myrc="$EDITOR ~/.my_rc"
+
+export FZF_DEFAULT_COMMAND='fdfind --type f'
+export EDITOR=vim
+
+export PATH=$HOME/dot-me-up/bin:$PATH
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+[ -f /usr/share/doc/fzf/examples/key-bindings.bash ] && source /usr/share/doc/fzf/examples/key-bindings.bash
+[ -f /usr/share/doc/fzf/examples/completion.bash ] && source /usr/share/doc/fzf/examples/completion.bash
