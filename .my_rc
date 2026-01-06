@@ -1,7 +1,7 @@
 # Remember the last 10k commands
 HISTSIZE=10000
-
-export PS1='\D{%H:%M:%S}┃\[\033[01;33m\]\w\[\033[01;32m\]\$ \[\033[00m\]'
+export EDITOR=vim
+export PS1="%B%F{yellow}%~%f%b "
 
 alias ls="ls -G -a --color"
 alias g="git status -uno"

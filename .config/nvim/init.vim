@@ -38,34 +38,65 @@ nnoremap <C-n> :e .<CR>
 nnoremap / :noh<CR>/
 " copy filename into clipboard
 nnoremap <silent> <leader>yf :let @+=expand("%")<CR>
-" copy pay test command
-nnoremap <silent> <leader>yt :let @+="pay test ".expand("%")." -l ".line(".")<CR>
 " copy file into clipboard
 nnoremap <silent> <leader>yc :%y+<CR>
 " Format JSON using python
 command! JSONFormat %!python -m json.tool %
 
+" mm: store mark "m"
+" gg: goto line 1
+" gqG: format (gq) until last line (G)
+" 'm: jump to mark "m"
+" :w<CR>: save filo
+nnoremap <leader>l mmgggqG'm:w<CR>
+set completeopt=menuone,noselect,popup
+inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+inoremap <expr><S-TAB>  pumvisible() ? "\<C-p>" : "\<TAB>"
+inoremap <expr><Enter>  pumvisible() ? "\<C-y>" : "\<Enter>"
+lua << EOF
+vim.lsp.config['jdtls'] = {
+  cmd = { 'jdtls' },
+  filetypes = { 'java' },
+  root_markers = { '.git' }
+}
+vim.lsp.enable('jdtls')
+vim.keymap.set('n', '[d', function() vim.diagnostic.jump({count=-1, float=true}) end)
+vim.keymap.set('n', ']d', function() vim.diagnostic.goto_next({count=1,float=true}) end)
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = vim.api.nvim_create_augroup('my.lsp', {}),
+  callback = function(args)
+    local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
+    -- Enable auto-completion. Note: Use CTRL-Y to select an item. |complete_CTRL-Y|
+    -- Optional: trigger autocompletion on EVERY keypress. May be slow!
+    local chars = {}
+    for i = 32, 39 do
+      table.insert(chars, string.char(i))
+    end
+    for i = 42, 58 do
+      table.insert(chars, string.char(i))
+    end
+    for i = 60, 90 do
+      table.insert(chars, string.char(i))
+    end
+    for i = 97, 122 do
+      table.insert(chars, string.char(i))
+    end
+    client.server_capabilities.completionProvider.triggerCharacters = chars
+    if client:supports_method('textDocument/completion') then
+      vim.lsp.completion.enable(true, client.id, args.buf, {autotrigger = true})
+    end
+  end,
+})
+EOF
+
 """ => fzf
-nnoremap <leader>f :Rg<space>
-nnoremap <leader>b :Buffers<CR>
-nnoremap <silent> <leader>s :Rg <C-r><C-w><CR>
-
-let g:fzf_preview_window = ['hidden,up,75%', '?']
-let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.8 } }
-
-" cache list of files by commit
-nnoremap <C-p> :CFiles<CR>
-"" proximity-sort to sort it w.r.t working directory
-" function! s:list_cmd()
-"   let base = fnamemodify(expand('%'), ':h:.:S')
-"   # return base == '.' ? 'fd -t f' : printf('fd -t f | proximity-sort %s', expand('%'))
-"   return 'fdfind -t f'
-" endfunction
-" 
-" command! -bang -nargs=? -complete=dir Files
-"   \ call fzf#vim#files(<q-args>, {'source': s:list_cmd(),
-"   \                               'options': '--tiebreak=index'}, <bang>0)
-
+"nnoremap <leader>f :Rg<space>
+"nnoremap <leader>b :Buffers<CR>
+"nnoremap <silent> <leader>s :Rg <C-r><C-w><CR>
+"
+"let g:fzf_preview_window = ['hidden,up,75%', '?']
+"let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.8 } }
+"
 function! s:cache_list_cmd()
   " are we in a git folder
   let ref = system('git symbolic-ref -q HEAD 2>/dev/null')
